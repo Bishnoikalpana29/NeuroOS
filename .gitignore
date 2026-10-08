@@ -30,3 +30,17 @@
 *.exe
 *.out
 *.app
+
+# Python virtual environment
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Python test/cache files
+.pytest_cache/
+
+# AI-generated model files
+ai/models/*.joblib
+ai/models/*.pkl
