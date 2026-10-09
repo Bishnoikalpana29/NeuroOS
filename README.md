@@ -162,3 +162,25 @@ NeuroOS can be extended with:
 - Cloud workload optimization
 - Intelligent energy-aware scheduling
 - Real operating-system kernel integration
+
+## Step 6 - RL Adaptive CPU Scheduler
+
+An AI scheduler that learns which scheduling algorithm (FCFS, SJF, Round Robin or Priority) to use for a given workload.
+
+### How it works
+- **State:** a batch of processes is summarised by 3 features (average burst length, burst variability, arrival spread), each bucketed into 3 levels, giving 27 states.
+- **Action:** choose one of FCFS, SJF, RR or Priority.
+- **Reward:** how much better the chosen algorithm's blended score (50% average waiting time + 50% average response time) is than the average of all four algorithms.
+- **Learning:** tabular Q-learning with epsilon-greedy exploration, trained for 20,000 episodes. Each episode is one random workload.
+
+### Files
+| File | Purpose |
+|------|---------|
+| `ai/src/rl_scheduler_env.py` | Python simulator of the four algorithms, workload generator, state and reward |
+| `ai/src/rl_agent.py` | Q-learning agent |
+| `ai/src/train_rl_scheduler.py` | Training and comparison script |
+| `ai/src/show_policy.py` | Prints the learned policy |
+| `ai/tests/test_rl_scheduler.py` | Unit tests |
+| `ai/models/rl_scheduler_q_table.json` | Saved Q-table |
+
+### Run
