@@ -184,3 +184,64 @@ An AI scheduler that learns which scheduling algorithm (FCFS, SJF, Round Robin o
 | `ai/models/rl_scheduler_q_table.json` | Saved Q-table |
 
 ### Run
+
+## Step 9 - Deadlock Management (Banker's Algorithm)
+
+A C++ module in `core/deadlock/` that keeps the system out of deadlock.
+
+- Stores the Allocation matrix, Max matrix and Available vector, and calculates Need = Max - Allocation.
+- **Safety algorithm:** finds a safe sequence if one exists, otherwise reports an unsafe state.
+- **Resource-request algorithm:** a request is denied if it exceeds the process's claim, waits if resources are not free, and is granted only if the new state stays safe.
+- Rejects invalid input (wrong sizes, negative numbers, Max < Allocation).
+
+| File | Purpose |
+|------|---------|
+| `core/deadlock/banker.h` | Class and result structures |
+| `core/deadlock/banker.cpp` | Banker's Algorithm |
+| `core/deadlock/banker_main.cpp` | Demo and test cases |
+| `core/deadlock/banker_edge_tests.cpp` | Edge-case tests |
+
+### Run
+```
+g++ -std=c++17 -Wall core\deadlock\banker.cpp core\deadlock\banker_main.cpp -o core\deadlock\banker.exe
+core\deadlock\banker.exe
+g++ -std=c++17 -Wall core\deadlock\banker.cpp core\deadlock\banker_edge_tests.cpp -o core\deadlock\banker_edge_tests.exe
+core\deadlock\banker_edge_tests.exe
+```
+
+## Step 10 - AI Deadlock-Risk Prediction
+
+A Random Forest classifier that estimates how likely a resource-allocation state is to be **unsafe**.
+
+### How it complements Step 9
+The Banker's Algorithm gives an exact answer but must scan the full matrices. The AI model gives a quick risk estimate from 8 summary features (for example utilization, fraction of runnable processes and resource scarcity). It can be used as an early warning, while the Banker's Algorithm remains the authority for actual allocation decisions.
+
+### Honest limitations
+- It is a **risk estimator**, not a replacement for the Banker's Algorithm and not a guarantee of deadlock detection.
+- The dataset is **synthetic**; labels come from the Banker's safety check in Python.
+- Test accuracy is about 90%, and about 10% of unsafe states were predicted as safe. A LOW risk result never guarantees safety.
+- It is not integrated into the C++ module.
+
+### Files
+| File | Purpose |
+|------|---------|
+| `ai/training/generate_deadlock_data.py` | Creates `ai/data/deadlock_dataset.csv` |
+| `ai/training/train_deadlock_model.py` | Trains and evaluates the model |
+| `ai/prediction/predict_deadlock.py` | Example predictions |
+| `ai/models/deadlock_risk_model.joblib` | Saved model |
+| `ai/tests/test_deadlock_model.py` | Tests |
+
+### Features and label
+Features: `num_processes`, `num_resources`, `utilization`, `avg_need`, `avg_available`, `need_to_available_ratio`, `runnable_fraction`, `scarcity`. Label: `unsafe` (1 = unsafe, 0 = safe).
+
+### Run
+```
+py -m pip install -r requirements.txt
+py ai\training\generate_deadlock_data.py
+py ai\training\train_deadlock_model.py
+py ai\prediction\predict_deadlock.py
+py -m pytest ai\tests\test_deadlock_model.py -v
+```
+
+### Results (600 test states)
+Accuracy 0.902, unsafe recall 0.903 (373 of 413 unsafe states caught, 40 missed).
