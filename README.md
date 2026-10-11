@@ -245,3 +245,18 @@ py -m pytest ai\tests\test_deadlock_model.py -v
 
 ### Results (600 test states)
 Accuracy 0.902, unsafe recall 0.903 (373 of 413 unsafe states caught, 40 missed).
+---
+
+## Testing and Performance Evaluation
+
+The integration and system testing results, AI model evaluation metrics, memory-management results, and known limitations are documented here:
+
+- [Testing and Performance Report](docs/TESTING_AND_PERFORMANCE.md)
+
+### Automated Test Results
+- AI test suite: 16 tests passed.
+- Memory management: FIFO and LRU test cases passed.
+- Deadlock avoidance: Banker’s algorithm test cases passed.
+- System monitoring and dashboard: Successfully tested.
+
+See the testing report for detailed results and limitations.
