@@ -44,3 +44,5 @@ __pycache__/
 # AI-generated model files
 ai/models/*.joblib
 ai/models/*.pkl
+# Generated system monitoring measurements
+results/monitoring/*.csv
